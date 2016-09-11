@@ -1,0 +1,63 @@
+# Site settings.
+site:
+  title: Roastr
+  
+# System settings.
+system:
+  env: "${env}"
+
+# Express settings.
+express:
+  port: 3000
+  serverStatic: true
+  disablePoweredBy: true
+  
+# Security settings.
+security:
+  keys:
+    private: "${config}/private.key"
+    public: "${config}/public.pem"
+  secret: changeme
+  saltLength: 10
+  jwt:
+    algorithm: "RS256"
+    expiresIn: "14 days"
+  
+# Log settings.
+log:
+  level: "info"
+  file: "${env}.log"
+  meta: false
+  
+# Session settings.
+session:
+  resave: false
+  saveUninitialized: false
+  name: session
+  cookie:
+    path: /
+    httpOnly: true
+
+# ORM settings.
+orm:
+  client: mysql
+  connection:
+      host     : 127.0.0.1
+      user     : ~
+      password : ~
+      database : ~
+      charset  : utf8mb4
+      
+# Redis settings
+redis:
+  connection:
+    host: 127.0.0.1
+    port: 6379
+  databases:
+    sockets: 0
+
+# Template settings.
+template:
+  autoescape: true
+  noCache: true
+  throwOnUndefined: true

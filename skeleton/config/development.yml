@@ -1,0 +1,8 @@
+@import:
+  - default.yml
+
+# Log settings.
+log:
+  level: "debug"
+  file: "${env}.log"
+  meta: false

@@ -1,0 +1,50 @@
+{
+  "name": "roastr",
+  "description": "An opinionated JavaScript MVC framework.",
+  "version": "0.0.1",
+  "author": "Sean Hickey",
+  "bin": {
+    "roastr": "./cli.js"
+  },
+  "bugs": "https://github.com/headzoo/roastr/issues",
+  "dependencies": {
+    "app-module-path": "^1.1.0",
+    "bluebird": "^3.4.1",
+    "body-parser": "^1.15.2",
+    "bookshelf": "^0.10.0",
+    "connect-redis": "^3.1.0",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "express-session": "^1.14.0",
+    "express-winston": "^2.0.0",
+    "fs-extra": "^0.30.0",
+    "js-yaml": "^3.6.1",
+    "jsonwebtoken": "^7.1.9",
+    "knex": "^0.11.10",
+    "lodash": "^4.15.0",
+    "mysql": "^2.11.1",
+    "nunjucks": "^2.4.2",
+    "redis": "^2.6.2",
+    "socket.io": "^1.4.8",
+    "socket.io-redis": "^1.0.0",
+    "wait-until": "0.0.2",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "homepage": "https://roastr.io",
+  "keywords": [
+    "express",
+    "framework",
+    "mvc",
+    "socket"
+  ],
+  "license": "MIT",
+  "main": "./index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/headzoo/roastr.git"
+  }
+}
