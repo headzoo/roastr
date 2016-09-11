@@ -1,6 +1,8 @@
+#! /usr/bin/env node
+
 'use strict';
 
-const objects = require('./server/utils/objects');
+const objects = require('../server/utils/objects');
 const argv    = require('yargs').argv;
 const cwd     = process.cwd();
 const path    = require('path');
@@ -34,7 +36,7 @@ if (argv.build) {
     });
     
     const app_dest = path.resolve(cwd, app);
-    const skeleton = path.resolve(__dirname, 'skeleton');
+    const skeleton = path.resolve(__dirname, '/../skeleton');
     let files = [
         {src: skeleton + '/package.json',  dest: cwd + '/package.json'},
         {src: skeleton + '/roastr.config.js',  dest: cwd + '/roastr.config.js'},
