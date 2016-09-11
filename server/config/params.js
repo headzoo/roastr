@@ -1,7 +1,7 @@
 'use strict';
 
 var _       = require('lodash');
-var objects = require('server/utils/objects');
+var objects = require('../utils/objects');
 
 class Params {
     

@@ -3,7 +3,7 @@
 var _            = require('lodash');
 var yaml         = require('js-yaml');
 var fs           = require('fs');
-var PreProcessor = require('server/config/preprocessor');
+var PreProcessor = require('../config/preprocessor');
 
 class Config {
     

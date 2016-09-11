@@ -1,6 +1,6 @@
 'use strict';
 
-var container = require('server/container');
+var container = require('../../container');
 
 module.exports = function(err, req, res, next) {
     if (req.headers['content-type'] !== undefined && req.headers['content-type'].indexOf('application/json') === -1) {

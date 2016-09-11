@@ -3,7 +3,7 @@
 const _     = require('lodash');
 const path  = require('path');
 const fs    = require('fs');
-const files = require('server/utils/files');
+const files = require('./files');
 
 const lib_root    = path.join(__dirname, '../..');
 const server_root = path.join(__dirname, 'server');

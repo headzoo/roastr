@@ -1,7 +1,7 @@
 'use strict';
 
 require('../_setup');
-const files = require('server/utils/files');
+const files = require('utils/files');
 
 exports.testExists = function(test) {
     files.exists(__dirname + '/files.js')

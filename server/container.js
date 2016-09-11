@@ -3,12 +3,12 @@
 var _    = require('lodash');
 var path = require('path');
 
-var container = require('server/utils/dic');
+var container = require('./utils/dic');
 
 container.service('env', process.env.NODE_ENV || 'development');
 
 container.factory('app', function() {
-    var Application = require('server/application');
+    var Application = require('./application');
     
     return new Application(
         container,
@@ -54,7 +54,7 @@ container.factory('server', function() {
 });
 
 container.factory('socket', function() {
-    var Socket = require('server/comm/socket');
+    var Socket = require('./comm/socket');
     
     return new Socket(
         container.get('server'),
@@ -65,7 +65,7 @@ container.factory('socket', function() {
 });
 
 container.factory('tasks', function() {
-    var Tasks  = require('server/utils/tasks');
+    var Tasks  = require('./utils/tasks');
     var tasks  = new Tasks(container.get('logger'));
     var dirs   = container.get('dirs');
     var files  = container.get('config').tasks || [];
@@ -78,7 +78,7 @@ container.factory('tasks', function() {
 });
 
 container.factory('models', function() {
-    var Models = require('server/utils/models');
+    var Models = require('./utils/models');
     
     return new Models(
         container,
@@ -88,7 +88,7 @@ container.factory('models', function() {
 
 container.factory('nunjucks', function() {
     var nunjucks    = require('nunjucks');
-    var Environment = require('server/template/environment');
+    var Environment = require('./template/environment');
     
     return new Environment(
         new nunjucks.FileSystemLoader(container.get('dirs').get('views')),
@@ -97,11 +97,11 @@ container.factory('nunjucks', function() {
 });
 
 container.factory('config', function() {
-    let Params = require('server/config/params');
+    let Params = require('./config/params');
     let params = new Params(_.merge({}, container.get('dirs').getAll(), {
         env: container.get('env')
     }));
-    let Config = require('server/config/loader');
+    let Config = require('./config/loader');
     let config = new Config(
         container.get('dirs'),
         container.get('env'),
@@ -112,7 +112,7 @@ container.factory('config', function() {
 });
 
 container.factory('dirs', function() {
-    var Directories = require('server/utils/dirs');
+    var Directories = require('./utils/dirs');
     
     return new Directories(
         container.get('root'),
@@ -139,12 +139,12 @@ container.factory('logger', function() {
 });
 
 container.factory('jwt', function() {
-    var JWT = require('server/security/jwt');
+    var JWT = require('./security/jwt');
     return new JWT(container.get('config'));
 });
 
 container.factory('mailbox', function() {
-    var Mailbox = require('server/comm/mailbox');
+    var Mailbox = require('./comm/mailbox');
     Mailbox.setLogger(container.get('logger'));
     Mailbox.setConfig(container.get('config'));
     
@@ -187,7 +187,7 @@ container.factory('redis', function() {
 });
 
 container.factory('passwords', function() {
-    var Passwords = require('server/crypt/passwords');
+    var Passwords = require('./crypt/passwords');
     return new Passwords(container.get('config'));
 });
 
@@ -207,11 +207,11 @@ container.factory('middleware.http.session', function() {
     return session(session_config);
 });
 
-container.service('middleware.http.auth', require('server/middleware/http/auth'));
+container.service('middleware.http.auth', require('./middleware/http/auth'));
 
-container.service('middleware.socket.auth', require('server/middleware/socket/auth'));
+container.service('middleware.socket.auth', require('./middleware/socket/auth'));
 
-container.service('middleware.http.json_error', require('server/middleware/http/json_error'));
+container.service('middleware.http.json_error', require('./middleware/http/json_error'));
 
 container.factory('middleware.http.body_parser', function() {
     return require('body-parser').urlencoded({ extended: true })

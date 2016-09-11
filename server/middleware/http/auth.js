@@ -1,6 +1,6 @@
 'use strict';
 
-var container = require('server/container');
+var container = require('../../container');
 
 module.exports = function(req, res, next) {
     var token = req.headers['x-access-token'];

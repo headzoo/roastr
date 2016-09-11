@@ -2,7 +2,7 @@
 
 const _     = require('lodash');
 const fs    = require('fs');
-const files = require('server/utils/files');
+const files = require('./utils/files');
 
 class Application {
     
