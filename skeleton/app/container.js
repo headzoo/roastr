@@ -1,5 +1,5 @@
 'use strict';
 
-var container = require('server/utils/dic');
+var container = require('roastr/server/container');
 
 module.exports = container;
