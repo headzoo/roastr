@@ -28,8 +28,8 @@ container.factory('app', function() {
 
 container.factory('express', function() {
     var express = require('express')();
-    container.keys('middleware.express.').forEach(function(key) {
-        express.use(container.get(key));
+    container.values('middleware.express.').forEach(function(middleware) {
+        express.use(middleware);
     });
     
     var config = container.get('config');
@@ -180,6 +180,9 @@ container.factory('passwords', function() {
     return new Passwords(container.get('config'));
 });
 
+/**
+ * Middleware
+ */
 container.factory('middleware.express.session', function() {
     var session    = require('express-session');
     var RedisStore = require('connect-redis')(session);
@@ -219,5 +222,16 @@ container.set('middleware.http.auth', require('./middleware/http/auth'));
 container.set('middleware.socket.auth', require('./middleware/socket/auth'));
 
 container.set('middleware.booted.json_error', require('./middleware/http/json_error'));
+
+/**
+ * Nunjucks globals and extensions
+ */
+container.factory('nunjucks.global.env', function() {
+    return container.get('env');
+});
+
+container.factory('nunjucks.global.config', function() {
+    return container.get('config');
+});
 
 module.exports = container;

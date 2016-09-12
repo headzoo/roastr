@@ -1,9 +1,10 @@
 'use strict';
 
-const _     = require('lodash');
-const fs    = require('fs');
-const path  = require('path');
-const files = require('./utils/files');
+const _            = require('lodash');
+const fs           = require('fs');
+const path         = require('path');
+const files        = require('./utils/files');
+const EventEmitter = require('events');
 
 class Application {
     
@@ -33,6 +34,7 @@ class Application {
         this.config    = config;
         this.logger    = logger;
         this.dirs      = dirs;
+        this.events    = new EventEmitter();
         this.booted    = false;
         
         Object.defineProperty(this, 'name', {
@@ -54,6 +56,17 @@ class Application {
     
     /**
      * 
+     * @param event
+     * @param callback
+     * @returns {Application}
+     */
+    on(event, callback) {
+        this.events.on(event, callback);
+        return this;
+    }
+    
+    /**
+     * 
      * @returns {Application}
      */
     boot() {
@@ -65,10 +78,12 @@ class Application {
         this._setupModels();
         this._setupRoutes();
         this.socket.on('connection', this._setupSocketRoutes.bind(this));
-        this.container.keys('middleware.booted.').forEach(function(key) {
-            this.express.use(this.container.get(key));
+        this.container.values('middleware.booted.').forEach(function(middleware) {
+            this.express.use(middleware);
         }.bind(this));
+        
         this.booted = true;
+        this.events.emit('booted', this);
         
         return this;
     }
@@ -88,6 +103,7 @@ class Application {
         this.server.listen(this.config.express.port, function() {
             this.tasks.start();
             this.socket.listen();
+            this.events.emit('listening', this);
             this.logger.info(
                 'Application "%s" listening on port %d with pid %d',
                 this.name,
@@ -106,6 +122,7 @@ class Application {
             this.logger.error(err.message);
         }
         
+        this.events.emit('stopping');
         this.models.close();
         this.tasks.stop().then(function() {
             this.socket.close();
@@ -159,8 +176,10 @@ class Application {
      */
     _setupTemplates() {
         this.nunjucks.express(this.express);
-        this.nunjucks.addGlobal('env', this.env);
-        this.nunjucks.addGlobal('config', this.config);
+        this.container.keys('nunjucks.global.').forEach(function(key) {
+            let param = key.replace(/^nunjucks\.global\./, '');
+            this.nunjucks.addGlobal(param, this.container.get(key));
+        }.bind(this));
     }
     
     /**
@@ -179,7 +198,9 @@ class Application {
             stack = (new Error()).stack;
         }
         
+        this.events.emit('error', err);
         this.logger.error(err);
+        
         var template = 'template/error.' + this.env + '.html.tpl';
         fs.readFile(path.resolve(__dirname, template), function(e, data) {
             if (e) return next(e);

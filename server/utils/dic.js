@@ -87,7 +87,7 @@ class Container {
     
     /**
      * 
-     * @param {string} [prefix]
+     * @param {string|RegExp} [prefix]
      * @returns {Array}
      */
     keys(prefix) {
@@ -95,9 +95,26 @@ class Container {
             return this.service_keys;
         }
         
-        return this.service_keys.filter(function(key) {
-            return key.indexOf(prefix) === 0;
-        });
+        if (prefix instanceof RegExp) {
+            return this.service_keys.filter(function(key) {
+                return key.match(prefix);
+            });
+        } else {
+            return this.service_keys.filter(function(key) {
+                return key.indexOf(prefix) === 0;
+            });
+        }
+    }
+    
+    /**
+     *
+     * @param {string|RegExp} [prefix]
+     * @returns {Array}
+     */
+    values(prefix) {
+        return this.keys(prefix).map(function(key) {
+            return this.get(key);
+        }.bind(this));
     }
     
     /**
