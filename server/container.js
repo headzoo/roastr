@@ -196,8 +196,6 @@ container.factory('middleware.express.session', function() {
     return session(session_config);
 });
 
-container.set('middleware.express.json_error', require('./middleware/http/json_error'));
-
 container.factory('middleware.express.body_parser', function() {
     return require('body-parser').urlencoded({ extended: true })
 });
@@ -219,5 +217,7 @@ container.factory('middleware.express.logger', function() {
 container.set('middleware.http.auth', require('./middleware/http/auth'));
 
 container.set('middleware.socket.auth', require('./middleware/socket/auth'));
+
+container.set('middleware.booted.json_error', require('./middleware/http/json_error'));
 
 module.exports = container;

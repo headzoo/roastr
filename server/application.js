@@ -2,6 +2,7 @@
 
 const _     = require('lodash');
 const fs    = require('fs');
+const path  = require('path');
 const files = require('./utils/files');
 
 class Application {
@@ -59,10 +60,14 @@ class Application {
         if (this.booted) {
             throw new Error('Application has already booted.');
         }
+        
         this._setupTemplates();
         this._setupModels();
         this._setupRoutes();
         this.socket.on('connection', this._setupSocketRoutes.bind(this));
+        this.container.keys('middleware.booted.').forEach(function(key) {
+            this.express.use(this.container.get(key));
+        }.bind(this));
         this.booted = true;
         
         return this;
@@ -76,10 +81,11 @@ class Application {
             this.boot();
         }
         
+        this.express.use(this._expressErrors.bind(this));
         process.on('SIGTERM',   this.stop.bind(this));
         process.on('SIGINT',    this.stop.bind(this));
         this.server.on('error', this.stop.bind(this));
-        this.server.listen(this.config.express.port, function listening() {
+        this.server.listen(this.config.express.port, function() {
             this.tasks.start();
             this.socket.listen();
             this.logger.info(
@@ -155,6 +161,34 @@ class Application {
         this.nunjucks.express(this.express);
         this.nunjucks.addGlobal('env', this.env);
         this.nunjucks.addGlobal('config', this.config);
+    }
+    
+    /**
+     * 
+     * @param err
+     * @param req
+     * @param res
+     * @param next
+     * @private
+     */
+    _expressErrors(err, req, res, next) {
+        let stack;
+        if (err.stack !== undefined) {
+            stack = err.stack;
+        } else {
+            stack = (new Error()).stack;
+        }
+        
+        this.logger.error(err);
+        var template = 'template/error.' + this.env + '.html.tpl';
+        fs.readFile(path.resolve(__dirname, template), function(e, data) {
+            if (e) return next(e);
+            let str = this.nunjucks.renderString(data.toString(), {
+                error: err,
+                stack: stack
+            });
+            res.status(500).send(str);
+        }.bind(this));
     }
 }
 
