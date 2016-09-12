@@ -13,7 +13,7 @@ module.exports = function(name, root) {
         path = './tests/_container';
     }
     
-    let container = require('./server/container');
+    let container = require('./src/container');
     container.set('name', name);
     container.set('root', root);
     container.assign(require(path));

@@ -1,7 +1,5 @@
 'use strict';
 
-var container = require('../../container');
-
 module.exports = function(req, res, next) {
     var token = req.headers['x-access-token'];
     if (!token) {
@@ -11,6 +9,7 @@ module.exports = function(req, res, next) {
         });
     }
     
+    var container = require('../../container');
     container.get('jwt').verify(token)
         .then(function(user) {
             req.decoded = user;

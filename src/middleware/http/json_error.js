@@ -5,7 +5,7 @@ module.exports = function(err, req, res, next) {
         return next();
     }
     
-    var container = require('../../container');
+    var container = require('../../../container');
     container.get('logger').info(err);
     res.status(500).json({
         success: false,
