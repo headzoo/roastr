@@ -1,0 +1,6 @@
+2016-09-12T03:29:43.703Z - info: Socket listening for connections.
+2016-09-12T03:29:43.704Z - info: Application "main" listening on port 3000 with pid 28613
+2016-09-12T03:29:47.037Z - info: HTTP GET /
+2016-09-12T03:29:51.148Z - info: Socket connections closing...
+2016-09-12T03:29:51.149Z - info: Waiting for connections to close...
+2016-09-12T03:29:51.650Z - info: Goodbye!

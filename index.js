@@ -1,22 +1,10 @@
 'use strict';
 
+let Roastr    = require('./src/roastr');
+let container = require('./src/container');
+
 /**
- * @param {string} name
- * @param {string} root
- * @returns {*}
+ * 
+ * @type {Roastr|exports|module.exports}
  */
-module.exports = function(name, root) {
-    let path;
-    if (name !== 'tests') {
-        path = `${root}/apps/${name}/container`;
-    } else {
-        path = './tests/_container';
-    }
-    
-    let container = require('./src/container');
-    container.set('name', name);
-    container.set('root', root);
-    container.assign(require(path));
-    
-    return container.get('app');
-};
+module.exports = new Roastr(container);

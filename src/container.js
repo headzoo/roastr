@@ -1,30 +1,12 @@
 'use strict';
 
-var _    = require('lodash');
-var path = require('path');
+const _     = require('lodash');
+const path  = require('path');
+const files = require('./utils/files');
 
-var container = require('./utils/dic');
+const container = require('./utils/container');
 
 container.set('env', process.env.NODE_ENV || 'development');
-
-container.factory('app', function() {
-    var Application = require('./application');
-    
-    return new Application(
-        container,
-        container.get('name'),
-        container.get('env'),
-        container.get('express'),
-        container.get('server'),
-        container.get('socket'),
-        container.get('tasks'),
-        container.get('models'),
-        container.get('nunjucks'),
-        container.get('config'),
-        container.get('logger'),
-        container.get('dirs')
-    );
-});
 
 container.factory('express', function() {
     var express = require('express')();
@@ -221,7 +203,7 @@ container.set('middleware.http.auth', require('./middleware/http/auth'));
 
 container.set('middleware.socket.auth', require('./middleware/socket/auth'));
 
-container.set('middleware.booted.json_error', require('./middleware/http/json_error'));
+container.set('middleware.booted.error', require('./middleware/http/error'));
 
 /**
  * Nunjucks globals and extensions

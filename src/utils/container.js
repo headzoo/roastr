@@ -128,4 +128,8 @@ class Container {
     }
 }
 
+/**
+ * 
+ * @type {Container}
+ */
 module.exports = new Container();
