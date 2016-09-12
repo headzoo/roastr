@@ -5,7 +5,7 @@ var path = require('path');
 
 var container = require('./utils/dic');
 
-container.service('env', process.env.NODE_ENV || 'development');
+container.set('env', process.env.NODE_ENV || 'development');
 
 container.factory('app', function() {
     var Application = require('./application');
@@ -28,12 +28,9 @@ container.factory('app', function() {
 
 container.factory('express', function() {
     var express = require('express')();
-    express.use(container.get('middleware.http.body_parser'));
-    express.use(container.get('middleware.http.body_parser_json'));
-    express.use(container.get('middleware.http.cookie_parser'));
-    express.use(container.get('middleware.http.session'));
-    express.use(container.get('middleware.http.json_error'));
-    express.use(container.get('middleware.http.logger'));
+    container.keys('middleware.express.').forEach(function(key) {
+        express.use(container.get(key));
+    });
     
     var config = container.get('config');
     if (config.express.disablePoweredBy) {
@@ -143,14 +140,6 @@ container.factory('jwt', function() {
     return new JWT(container.get('config'));
 });
 
-container.factory('mailbox', function() {
-    var Mailbox = require('./comm/mailbox');
-    Mailbox.setLogger(container.get('logger'));
-    Mailbox.setConfig(container.get('config'));
-    
-    return Mailbox;
-});
-
 container.factory('knex', function() {
     var config = container.get('config');
     
@@ -191,7 +180,7 @@ container.factory('passwords', function() {
     return new Passwords(container.get('config'));
 });
 
-container.factory('middleware.http.session', function() {
+container.factory('middleware.express.session', function() {
     var session    = require('express-session');
     var RedisStore = require('connect-redis')(session);
     var config     = container.get('config');
@@ -207,28 +196,28 @@ container.factory('middleware.http.session', function() {
     return session(session_config);
 });
 
-container.service('middleware.http.auth', require('./middleware/http/auth'));
+container.set('middleware.express.json_error', require('./middleware/http/json_error'));
 
-container.service('middleware.socket.auth', require('./middleware/socket/auth'));
-
-container.service('middleware.http.json_error', require('./middleware/http/json_error'));
-
-container.factory('middleware.http.body_parser', function() {
+container.factory('middleware.express.body_parser', function() {
     return require('body-parser').urlencoded({ extended: true })
 });
 
-container.service('middleware.http.body_parser_json', require('body-parser').json());
+container.set('middleware.express.body_parser_json', require('body-parser').json());
 
-container.factory('middleware.http.cookie_parser', function() {
+container.factory('middleware.express.cookie_parser', function() {
     var parser = require('cookie-parser');
     return parser(container.get('config').security.secret);
 });
 
-container.factory('middleware.http.logger', function() {
+container.factory('middleware.express.logger', function() {
     return require('express-winston').logger({
         winstonInstance: container.get('logger'),
         meta: container.get('config').log.meta
     });
 });
+
+container.set('middleware.http.auth', require('./middleware/http/auth'));
+
+container.set('middleware.socket.auth', require('./middleware/socket/auth'));
 
 module.exports = container;

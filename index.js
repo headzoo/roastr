@@ -13,11 +13,10 @@ module.exports = function(name, root) {
         path = './tests/_container';
     }
     
-    let server_container = require('./server/container');
-    let app_container    = require(path);
-    app_container.service('name', name);
-    app_container.service('root', root);
-    server_container.assign(app_container);
+    let container = require('./server/container');
+    container.set('name', name);
+    container.set('root', root);
+    container.assign(require(path));
     
-    return server_container.get('app');
+    return container.get('app');
 };

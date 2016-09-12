@@ -37,7 +37,7 @@ class Models {
         
         this.models[table_name] = model;
         this.bookshelf.model(table_name, model);
-        this.container.service('model.' + table_name, model);
+        this.container.set('model.' + table_name, model);
         
         return model;
     }

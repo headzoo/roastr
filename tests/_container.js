@@ -1,8 +1,8 @@
 'use strict';
 
 var container = require('../server/container');
-container.service('server', null);
-container.service('express', null);
-container.service('socket', null);
+container.set('server', null);
+container.set('express', null);
+container.set('socket', null);
 
 module.exports = container;
