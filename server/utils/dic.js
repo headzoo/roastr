@@ -3,19 +3,6 @@
 var _            = require('lodash');
 var EventEmitter = require('events');
 
-const reserved = [
-    'events',
-    'service_keys',
-    'services',
-    'instances',
-    'on',
-    'set',
-    'get',
-    'factory',
-    'keys',
-    'assign'
-];
-
 class Container {
     
     /**
@@ -43,24 +30,12 @@ class Container {
      * 
      * @param key
      * @param obj
-     * @param [prop]
      * @returns {Container}
      */
-    set(key, obj, prop) {
-        if (reserved.indexOf(key) !== -1) {
-            throw new Error('Container: Cannot use reserved key "' + key +'".');
-        }
-        
+    set(key, obj) {
         this.service_keys.push(key);
         this.services[key]  = false;
         this.instances[key] = obj;
-        if (prop) {
-            Object.defineProperty(this, key, {
-                get() {
-                    return this.get(key);
-                }
-            });
-        }
         
         return this;
     }
@@ -73,7 +48,13 @@ class Container {
     get(key) {
         let service = this.services[key];
         if (service === undefined) {
-            throw 'Invalid service "' + key + '".';
+            if (key.indexOf('.') !== -1) {
+                let parts = key.split('.');
+                let key_p = parts.shift();
+                return _.get(this.get(key_p), parts.join('.'));
+            }
+            
+            throw new Error('Container: Service "' + key + '" not found.');
         }
         
         if (this.instances[key] === undefined) {
@@ -93,25 +74,13 @@ class Container {
      * 
      * @param key
      * @param func
-     * @param [prop]
      * @returns {Container}
      */
-    factory(key, func, prop) {
-        if (reserved.indexOf(key) !== -1) {
-            throw new Error('Container: Cannot use reserved key "' + key +'".');
-        }
-        
+    factory(key, func) {
         this.service_keys.push(key);
         this.services[key] = {
             func: func
         };
-        if (prop) {
-            Object.defineProperty(this, key, {
-                get() {
-                    return this.get(key);
-                }
-            });
-        }
         
         return this;
     }

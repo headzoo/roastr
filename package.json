@@ -9,6 +9,7 @@
   "bugs": "https://github.com/headzoo/roastr/issues",
   "dependencies": {
     "app-module-path": "^1.1.0",
+    "bcrypt": "^0.8.7",
     "bluebird": "^3.4.1",
     "body-parser": "^1.15.2",
     "bookshelf": "^0.10.0",

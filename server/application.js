@@ -116,9 +116,13 @@ class Application {
      * @private
      */
     _setupModels() {
+        this.dirs.forEach('_models', function(file) {
+            require(file)(this.models, this.container);
+            this.logger.debug('Model added: ' + file);
+        }.bind(this));
+        
         this.dirs.forEach('models', function(file) {
-            var model = require(file);
-            model(this.models, this.container);
+            require(file)(this.models, this.container);
             this.logger.debug('Model added: ' + file);
         }.bind(this));
     }
@@ -128,8 +132,7 @@ class Application {
      */
     _setupRoutes() {
         this.dirs.forEach('http', function(file) {
-            var route = require(file);
-            route(this.express, this.container);
+            require(file)(this.express, this.container);
             this.logger.debug('Route added: ' + file);
         }.bind(this));
     }
@@ -140,8 +143,7 @@ class Application {
      */
     _setupSocketRoutes(socket) {
         this.dirs.forEach('socket', function(file) {
-            var route = require(file);
-            route(socket, this.container);
+            require(file)(socket, this.container);
             this.logger.debug('Socket route added: ' + file);
         }.bind(this));
     }

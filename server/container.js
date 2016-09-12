@@ -5,7 +5,7 @@ var path = require('path');
 
 var container = require('./utils/dic');
 
-container.set('env', process.env.NODE_ENV || 'development', true);
+container.set('env', process.env.NODE_ENV || 'development');
 
 container.factory('app', function() {
     var Application = require('./application');
@@ -24,7 +24,7 @@ container.factory('app', function() {
         container.get('logger'),
         container.get('dirs')
     );
-}, true);
+});
 
 container.factory('express', function() {
     var express = require('express')();
@@ -43,12 +43,12 @@ container.factory('express', function() {
     }
     
     return express;
-}, true);
+});
 
 container.factory('server', function() {
     var express = container.get('express');
     return require('http').Server(express);
-}, true);
+});
 
 container.factory('socket', function() {
     var Socket = require('./comm/socket');
@@ -59,7 +59,7 @@ container.factory('socket', function() {
         container.get('logger'),
         container.get('dirs')
     );
-}, true);
+});
 
 container.factory('tasks', function() {
     var Tasks  = require('./utils/tasks');
@@ -72,7 +72,7 @@ container.factory('tasks', function() {
     });
     
     return tasks;
-}, true);
+});
 
 container.factory('models', function() {
     var Models = require('./utils/models');
@@ -81,7 +81,7 @@ container.factory('models', function() {
         container,
         container.get('bookshelf')
     );
-}, true);
+});
 
 container.factory('nunjucks', function() {
     var nunjucks    = require('nunjucks');
@@ -91,7 +91,7 @@ container.factory('nunjucks', function() {
         new nunjucks.FileSystemLoader(container.get('dirs').get('views')),
         container.get('config').template
     );
-}, true);
+});
 
 container.factory('config', function() {
     let Params = require('./config/params');
@@ -106,7 +106,7 @@ container.factory('config', function() {
     );
     
     return config.load(container.get('name'));
-}, true);
+});
 
 container.factory('dirs', function() {
     var Directories = require('./utils/dirs');
@@ -115,7 +115,7 @@ container.factory('dirs', function() {
         container.get('root'),
         container.get('name')
     );
-}, true);
+});
 
 container.factory('logger', function() {
     var config  = container.get('config');
@@ -133,12 +133,12 @@ container.factory('logger', function() {
     });
     
     return winston;
-}, true);
+});
 
 container.factory('jwt', function() {
     var JWT = require('./security/jwt');
     return new JWT(container.get('config'));
-}, true);
+});
 
 container.factory('knex', function() {
     var config = container.get('config');
@@ -147,7 +147,7 @@ container.factory('knex', function() {
         client     : config.orm.client,
         connection : config.orm.connection
     });
-}, true);
+});
 
 container.factory('bookshelf', function() {
     var bookshelf = require('bookshelf')(container.get('knex'));
@@ -155,7 +155,7 @@ container.factory('bookshelf', function() {
     bookshelf.plugin('visibility');
     
     return bookshelf;
-}, true);
+});
 
 container.factory('redis', function() {
     var redis    = require("redis");
@@ -173,12 +173,12 @@ container.factory('redis', function() {
     client.databases = config.redis.databases;
     
     return client;
-}, true);
+});
 
 container.factory('passwords', function() {
     var Passwords = require('./crypt/passwords');
     return new Passwords(container.get('config'));
-}, true);
+});
 
 container.factory('middleware.express.session', function() {
     var session    = require('express-session');
