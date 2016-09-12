@@ -1,5 +1,6 @@
 'use strict';
 
-var container = require('roastr/server/container');
+const roastr    = require('roastr');
+const container = roastr.container;
 
 module.exports = container;

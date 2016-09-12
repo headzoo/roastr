@@ -1,8 +1,0 @@
-@import:
-  - main.production.yml
-
-# Log settings.
-log:
-  level: "debug"
-  file: "${env}.log"
-  meta: false

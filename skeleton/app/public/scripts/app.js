@@ -1,3 +1,8 @@
 'use strict';
 
-console.log('Roastr!');
+$.getScript('/socket.io/socket.io.js')
+    .done(function() {
+        let socket = io();
+        console.log('Roastr!');
+    });
+    

@@ -2,5 +2,10 @@
 
 require('app-module-path').addPath(__dirname + '/../src');
 
-const roastr   = require('../index');
-module.exports = roastr('tests', __dirname);
+const Roastr    = require('roastr');
+const container = require('container');
+
+/**
+ * @type {Roastr|exports|module.exports}
+ */
+module.exports = new Roastr(container);

@@ -17,6 +17,8 @@ class Roastr {
         this.c      = container;
         this.events = new EventEmitter();
         this.booted = false;
+        this.booted_models = false;
+        this.booted_socket = false;
         
         Object.defineProperty(this, 'container', {
             get() {
@@ -39,7 +41,6 @@ class Roastr {
         
         this.c.set('name', app_name);
         this.c.set('root', root_dir);
-        
         let app_container_path = this.c.get('dirs').app + '/container.js';
         if (files.existsSync(app_container_path)) {
             require(app_container_path);
@@ -102,8 +103,12 @@ class Roastr {
         }
         
         this.events.emit('stopping');
-        this.c.get('models').close();
-        this.c.get('socket').close();
+        if (this.booted_models) {
+            this.c.get('models').close();
+        }
+        if (this.booted_socket) {
+            this.c.get('socket').close();
+        }
         this.c.get('server').close();
         process.exit(err ? 1 : 0);
     }
@@ -125,9 +130,14 @@ class Roastr {
      */
     _setupModels() {
         let container = this.c;
-        let models    = container.get('models');
-        let logger    = container.get('logger');
-        let dirs      = container.get('dirs');
+        let orm = container.get('config.orm');
+        if (!orm) {
+            return;
+        }
+        
+        let models = container.get('models');
+        let logger = container.get('logger');
+        let dirs   = container.get('dirs');
         
         dirs.forEach('_models', function(file) {
             require(file)(models, container);
@@ -135,6 +145,8 @@ class Roastr {
         dirs.forEach('models', function(file) {
             require(file)(models, container);
         });
+        
+        this.booted_models = true;
     }
     
     /**
@@ -172,6 +184,8 @@ class Roastr {
                 require(file)(socket, container);
             });
         });
+        
+        this.booted_socket = true;
     }
     
     /**
@@ -181,6 +195,7 @@ class Roastr {
         let container = this.c;
         let nunjucks  = container.get('nunjucks');
         nunjucks.express(container.get('express'));
+        
         container.keys('nunjucks.global.').forEach(function(key) {
             let param = key.replace(/^nunjucks\.global\./, '');
             nunjucks.addGlobal(param, container.get(key));
