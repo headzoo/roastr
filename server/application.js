@@ -154,10 +154,19 @@ class Application {
      * @private
      */
     _setupRoutes() {
+        let catchall = null;
         this.dirs.forEach('http', function(file) {
+            if (path.basename(file) === 'catchall.js') {
+                catchall = file;
+                return;
+            }
             require(file)(this.express, this.container);
             this.logger.debug('Route added: ' + file);
         }.bind(this));
+        if (catchall) {
+            require(catchall)(this.express, this.container);
+            this.logger.debug('Route added: ' + catchall);
+        }
     }
     
     /**
