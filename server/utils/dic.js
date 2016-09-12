@@ -3,6 +3,19 @@
 var _            = require('lodash');
 var EventEmitter = require('events');
 
+const reserved = [
+    'events',
+    'service_keys',
+    'services',
+    'instances',
+    'on',
+    'set',
+    'get',
+    'factory',
+    'keys',
+    'assign'
+];
+
 class Container {
     
     /**
@@ -30,12 +43,24 @@ class Container {
      * 
      * @param key
      * @param obj
+     * @param [prop]
      * @returns {Container}
      */
-    set(key, obj) {
+    set(key, obj, prop) {
+        if (reserved.indexOf(key) !== -1) {
+            throw new Error('Container: Cannot use reserved key "' + key +'".');
+        }
+        
         this.service_keys.push(key);
         this.services[key]  = false;
         this.instances[key] = obj;
+        if (prop) {
+            Object.defineProperty(this, key, {
+                get() {
+                    return this.get(key);
+                }
+            });
+        }
         
         return this;
     }
@@ -68,13 +93,25 @@ class Container {
      * 
      * @param key
      * @param func
+     * @param [prop]
      * @returns {Container}
      */
-    factory(key, func) {
+    factory(key, func, prop) {
+        if (reserved.indexOf(key) !== -1) {
+            throw new Error('Container: Cannot use reserved key "' + key +'".');
+        }
+        
         this.service_keys.push(key);
         this.services[key] = {
             func: func
         };
+        if (prop) {
+            Object.defineProperty(this, key, {
+                get() {
+                    return this.get(key);
+                }
+            });
+        }
         
         return this;
     }
