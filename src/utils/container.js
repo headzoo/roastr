@@ -10,9 +10,9 @@ class Container {
      */
     constructor() {
         this.events = new EventEmitter();
-        this.service_keys = [];
         this.services     = {};
         this.instances    = {};
+        this.tags         = {};
     }
     
     /**
@@ -23,20 +23,6 @@ class Container {
      */
     on(event, callback) {
         this.events.on(event, callback);
-        return this;
-    }
-    
-    /**
-     * 
-     * @param key
-     * @param obj
-     * @returns {Container}
-     */
-    set(key, obj) {
-        this.service_keys.push(key);
-        this.services[key]  = false;
-        this.instances[key] = obj;
-        
         return this;
     }
     
@@ -71,60 +57,111 @@ class Container {
     }
     
     /**
-     * 
-     * @param key
-     * @param func
+     *
+     * @param {string} key
+     * @param {Array|*} tags
+     * @param {*} [obj]
      * @returns {Container}
      */
-    factory(key, func) {
-        this.service_keys.push(key);
-        this.services[key] = {
-            func: func
-        };
+    set(key, tags, obj) {
+        if (arguments.length == 2) {
+            obj  = tags;
+            tags = null;
+        }
+        
+        this.services[key]  = false;
+        this.instances[key] = obj;
+        if (tags) {
+            this.tagService(key, tags);
+        }
         
         return this;
     }
     
     /**
      * 
-     * @param {string|RegExp} [prefix]
-     * @returns {Array}
+     * @param {string} key
+     * @param {Array|string|Function} tags
+     * @param {Function} [func]
+     * @returns {Container}
      */
-    keys(prefix) {
-        if (!prefix) {
-            return this.service_keys;
+    factory(key, tags, func) {
+        if (arguments.length == 2) {
+            func = tags;
+            tags = null;
         }
         
-        if (prefix instanceof RegExp) {
-            return this.service_keys.filter(function(key) {
-                return key.match(prefix);
-            });
-        } else {
-            return this.service_keys.filter(function(key) {
-                return key.indexOf(prefix) === 0;
-            });
+        this.services[key] = {
+            func: func
+        };
+        if (tags) {
+            this.tagService(key, tags);
         }
+        
+        return this;
+    }
+    
+    /**
+     * 
+     * @param {string} tag
+     * @param {Function} [callback]
+     * @returns {Object}
+     */
+    tagged(tag, callback) {
+        if (callback) {
+            this.keysByTag(tag).forEach(function(key) {
+                callback(this.get(key), key);
+            }.bind(this));
+            return this;
+        }
+        
+        let values = {};
+        this.keysByTag(tag).forEach(function(key) {
+            values[key] = this.get(key);
+        }.bind(this));
+        
+        return values;
     }
     
     /**
      *
-     * @param {string|RegExp} [prefix]
      * @returns {Array}
      */
-    values(prefix) {
-        return this.keys(prefix).map(function(key) {
-            return this.get(key);
-        }.bind(this));
+    keys() {
+        return Object.keys(this.services);
     }
     
     /**
-     * Assigns the values of another container to this container
+     *
+     * @param {string} tag
+     * @returns {*}
+     */
+    keysByTag(tag) {
+        if (this.tags[tag] === undefined) {
+            return [];
+        }
+        
+        return this.tags[tag];
+    }
+    
+    /**
      * 
-     * @param {Container} container
+     * @param {string} key
+     * @param {Array|string} tags
      * @returns {Container}
      */
-    assign(container) {
-        return _.assign(this, container);
+    tagService(key, tags) {
+        if (!Array.isArray(tags)) {
+            tags = [tags];
+        }
+        tags.forEach(function(tag) {
+            if (this.tags[tag] === undefined) {
+                this.tags[tag] = [];
+            }
+            this.tags[tag].push(key);
+        }.bind(this));
+        
+        return this;
     }
 }
 

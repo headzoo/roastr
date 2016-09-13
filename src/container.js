@@ -1,16 +1,30 @@
 'use strict';
 
-const _     = require('lodash');
-const path  = require('path');
-const files = require('./utils/files');
-
+const _         = require('lodash');
+const path      = require('path');
+const files     = require('./utils/files');
 const container = require('./utils/container');
 
-container.set('env', process.env.NODE_ENV || 'development');
+container.set('env', ['template.global'], process.env.NODE_ENV || 'development');
+
+container.factory('config', ['template.global'], function() {
+    let Params = require('./config/params');
+    let params = new Params(_.merge({}, container.get('dirs').getAll(), {
+        env: container.get('env')
+    }));
+    let Config = require('./config/loader');
+    let config = new Config(
+        container.get('dirs'),
+        container.get('env'),
+        params
+    );
+    
+    return config.load(container.get('name'));
+});
 
 container.factory('express', function() {
     var express = require('express')();
-    container.values('middleware.express.').forEach(function(middleware) {
+    container.tagged('express.middleware', function(middleware) {
         express.use(middleware);
     });
     
@@ -73,21 +87,6 @@ container.factory('nunjucks', function() {
         new nunjucks.FileSystemLoader(container.get('dirs').get('views')),
         container.get('config').template
     );
-});
-
-container.factory('config', function() {
-    let Params = require('./config/params');
-    let params = new Params(_.merge({}, container.get('dirs').getAll(), {
-        env: container.get('env')
-    }));
-    let Config = require('./config/loader');
-    let config = new Config(
-        container.get('dirs'),
-        container.get('env'),
-        params
-    );
-    
-    return config.load(container.get('name'));
 });
 
 container.factory('dirs', function() {
@@ -162,10 +161,7 @@ container.factory('passwords', function() {
     return new Passwords(container.get('config'));
 });
 
-/**
- * Middleware
- */
-container.factory('middleware.express.session', function() {
+container.factory('express.session', ['express.middleware'], function() {
     var session    = require('express-session');
     var RedisStore = require('connect-redis')(session);
     var config     = container.get('config');
@@ -181,39 +177,28 @@ container.factory('middleware.express.session', function() {
     return session(session_config);
 });
 
-container.factory('middleware.express.body_parser', function() {
+container.factory('express.body_parser', ['express.middleware'], function() {
     return require('body-parser').urlencoded({ extended: true })
 });
 
-container.set('middleware.express.body_parser_json', require('body-parser').json());
+container.set('express.body_parser_json', ['express.middleware'], require('body-parser').json());
 
-container.factory('middleware.express.cookie_parser', function() {
+container.factory('express.cookie_parser', ['express.middleware'], function() {
     var parser = require('cookie-parser');
     return parser(container.get('config').security.secret);
 });
 
-container.factory('middleware.express.logger', function() {
+container.factory('express.logger', ['express.middleware'], function() {
     return require('express-winston').logger({
         winstonInstance: container.get('logger'),
         meta: container.get('config').log.meta
     });
 });
 
-container.set('middleware.http.auth', require('./middleware/http/auth'));
+container.set('http.auth', require('./middleware/http/auth'));
 
-container.set('middleware.socket.auth', require('./middleware/socket/auth'));
+container.set('socket.auth', require('./middleware/socket/auth'));
 
-container.set('middleware.roastr.error', require('./middleware/http/error'));
-
-/**
- * Nunjucks globals and extensions
- */
-container.factory('nunjucks.global.env', function() {
-    return container.get('env');
-});
-
-container.factory('nunjucks.global.config', function() {
-    return container.get('config');
-});
+container.set('roastr.error', ['roastr.middleware'], require('./middleware/http/error'));
 
 module.exports = container;

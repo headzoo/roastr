@@ -76,7 +76,7 @@ class Roastr {
         let server    = container.get('server');
         let socket    = container.get('socket');
         
-        container.values('middleware.roastr.').forEach(function(middleware) {
+        container.tagged('roastr.middleware', function(middleware) {
             express.use(middleware);
         });
         server.listen(config.express.port, function() {
@@ -195,10 +195,8 @@ class Roastr {
         let container = this.c;
         let nunjucks  = container.get('nunjucks');
         nunjucks.express(container.get('express'));
-        
-        container.keys('nunjucks.global.').forEach(function(key) {
-            let param = key.replace(/^nunjucks\.global\./, '');
-            nunjucks.addGlobal(param, container.get(key));
+        container.tagged('template.global', function(value, key) {
+            nunjucks.addGlobal(key, value);
         });
     }
 }
