@@ -9,10 +9,10 @@ class Container {
      * Constructor
      */
     constructor() {
-        this.events = new EventEmitter();
-        this.services     = {};
-        this.instances    = {};
-        this.tags         = {};
+        this.events    = new EventEmitter();
+        this.services  = {};
+        this.instances = {};
+        this.tags      = {};
     }
     
     /**
@@ -35,9 +35,13 @@ class Container {
         let service = this.services[key];
         if (service === undefined) {
             if (key.indexOf('.') !== -1) {
-                let parts = key.split('.');
-                let key_p = parts.shift();
-                return _.get(this.get(key_p), parts.join('.'));
+                try {
+                    let parts = key.split('.');
+                    let key_p = parts.shift();
+                    return _.get(this.get(key_p), parts.join('.'));
+                } catch (e) {
+                    throw new Error('Container: Service "' + key + '" not found.');
+                }
             }
             
             throw new Error('Container: Service "' + key + '" not found.');
