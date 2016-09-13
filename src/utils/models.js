@@ -21,37 +21,22 @@ class Models {
     }
     
     /**
-     * 
-     * @param table_name
+     *
      * @param [opts]
      * @returns {*}
      */
-    make(table_name, opts) {
-        opts = opts || {};
-        opts.tableName = table_name;
-        
+    add(opts) {
         var model = this.bookshelf.Model.extend(opts);
-        model.create = function(values) {
-            return new model(values);
-        };
         
-        this.models[table_name] = model;
-        this.bookshelf.model(table_name, model);
-        this.container.set('model.' + table_name, model);
+        this.bookshelf.model(opts.tableName, model);
+        this.models[opts.tableName] = model;
+        Object.defineProperty(this, opts.tableName, {
+            get() {
+                return this.models[opts.tableName];
+            }
+        });
         
         return model;
-    }
-    
-    /**
-     * 
-     * @param table_name
-     * @returns {*}
-     */
-    get(table_name) {
-        if (this.models[table_name] === undefined) {
-            throw new Error('Table "' + table_name + '" not found.');
-        }
-        return this.models[table_name];
     }
 }
 
