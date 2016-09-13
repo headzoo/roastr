@@ -76,7 +76,7 @@ class Roastr {
         let server    = container.get('server');
         let socket    = container.get('socket');
         
-        container.values('middleware.booted.').forEach(function(middleware) {
+        container.values('middleware.roastr.').forEach(function(middleware) {
             express.use(middleware);
         });
         server.listen(config.express.port, function() {

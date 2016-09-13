@@ -203,7 +203,7 @@ container.set('middleware.http.auth', require('./middleware/http/auth'));
 
 container.set('middleware.socket.auth', require('./middleware/socket/auth'));
 
-container.set('middleware.booted.error', require('./middleware/http/error'));
+container.set('middleware.roastr.error', require('./middleware/http/error'));
 
 /**
  * Nunjucks globals and extensions
