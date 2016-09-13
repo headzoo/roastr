@@ -9,13 +9,13 @@ const lib_root    = path.join(__dirname, '../..');
 const server_root = path.join(__dirname, 'server');
 const dirs    = {
     'public' : 'public',
-    _public  : '../_/public',
+    _public  : '../lib/public',
     views    : 'views',
     tasks    : 'tasks',
-    _tasks   : '../_/tasks',
+    _tasks   : '../lib/tasks',
     models   : 'models',
-    _models  : '../_/models',
-    http     : 'http',
+    _models  : '../lib/models',
+    routes   : 'routes',
     socket   : 'socket'
 };
 

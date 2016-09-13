@@ -18,6 +18,7 @@ class Roastr {
         this.events = new EventEmitter();
         this.booted = false;
         this.booted_models = false;
+        this.booted_routes = false;
         this.booted_socket = false;
         
         Object.defineProperty(this, 'container', {
@@ -48,8 +49,8 @@ class Roastr {
         
         this._setupTemplates();
         this._setupModels();
-        this._setupHTTPRoutes();
-        this._setupSocketRoutes();
+        this._setupRoutes();
+        this._setupSocket();
         
         process.on('SIGTERM', this.stop.bind(this));
         process.on('SIGINT',  this.stop.bind(this));
@@ -147,18 +148,20 @@ class Roastr {
         });
         
         this.booted_models = true;
+        logger.debug('Models loaded.');
     }
     
     /**
      * @private
      */
-    _setupHTTPRoutes() {
+    _setupRoutes() {
         let container = this.c;
         let express   = container.get('express');
+        let logger    = container.get('logger');
         let dirs      = container.get('dirs');
         let catchall  = null;
         
-        dirs.forEach('http', function(file) {
+        dirs.forEach('routes', function(file) {
             if (path.basename(file) === 'catchall.js') {
                 catchall = file;
                 return;
@@ -168,12 +171,15 @@ class Roastr {
         if (catchall) {
             require(catchall)(express, container);
         }
+        
+        this.booted_routes = true;
+        logger.debug('Routes loaded.');
     }
     
     /**
      * @private
      */
-    _setupSocketRoutes() {
+    _setupSocket() {
         let container = this.c;
         let socket    = container.get('socket');
         let logger    = container.get('logger');
@@ -186,6 +192,7 @@ class Roastr {
         });
         
         this.booted_socket = true;
+        logger.debug('Socket handlers loaded.');
     }
     
     /**
