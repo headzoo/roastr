@@ -18,8 +18,8 @@ class Roastr {
         this.events = new EventEmitter();
         this.booted = false;
         this.booted_models = false;
-        this.booted_routes = false;
         this.booted_socket = false;
+        this.booted_tasks  = false;
         
         Object.defineProperty(this, 'container', {
             get() {
@@ -51,12 +51,14 @@ class Roastr {
         this._setupModels();
         this._setupRoutes();
         this._setupSocket();
+        this._setupTasks();
         
         process.on('SIGTERM', this.stop.bind(this));
         process.on('SIGINT',  this.stop.bind(this));
         
         this.booted = true;
         this.events.emit('booted', this);
+        this.c.get('logger').debug('Application boot complete.');
         
         return this;
     }
@@ -76,12 +78,14 @@ class Roastr {
         let express   = container.get('express');
         let server    = container.get('server');
         let socket    = container.get('socket');
+        let tasks     = container.get('tasks');
         
         container.tagged('roastr.middleware', function(middleware) {
             express.use(middleware);
         });
         server.listen(config.express.port, function() {
             socket.listen();
+            tasks.start();
             
             events.emit('listening', this);
             logger.info(
@@ -103,14 +107,24 @@ class Roastr {
             this.c.get('logger').error(err.message);
         }
         
+        let logger = this.c.get('logger');
         this.events.emit('stopping');
         if (this.booted_models) {
             this.c.get('models').close();
+            logger.debug('Models closed.');
         }
         if (this.booted_socket) {
             this.c.get('socket').close();
+            logger.debug('Sockets closed.');
         }
+        if (this.booted_tasks) {
+            this.c.get('tasks').stop();
+            logger.debug('Tasks stopped.');
+        }
+        
         this.c.get('server').close();
+        logger.debug('Server closed.');
+        
         process.exit(err ? 1 : 0);
     }
     
@@ -148,7 +162,8 @@ class Roastr {
         });
         
         this.booted_models = true;
-        logger.debug('Models loaded.');
+        this.events.emit('booted.models', this);
+        logger.debug('Models booted.');
     }
     
     /**
@@ -172,8 +187,8 @@ class Roastr {
             require(catchall)(express, container);
         }
         
-        this.booted_routes = true;
-        logger.debug('Routes loaded.');
+        this.events.emit('booted.routes', this);
+        logger.debug('Routes booted.');
     }
     
     /**
@@ -192,7 +207,8 @@ class Roastr {
         });
         
         this.booted_socket = true;
-        logger.debug('Socket handlers loaded.');
+        this.events.emit('booted.socket', this);
+        logger.debug('Socket handlers booted.');
     }
     
     /**
@@ -200,11 +216,32 @@ class Roastr {
      */
     _setupTemplates() {
         let container = this.c;
+        let logger    = container.get('logger');
         let nunjucks  = container.get('nunjucks');
         nunjucks.express(container.get('express'));
         container.tagged('template.global', function(value, key) {
             nunjucks.addGlobal(key, value);
         });
+        
+        this.events.emit('booted.templates', this);
+        logger.debug('Templates booted.');
+    }
+    
+    /**
+     * @private
+     */
+    _setupTasks() {
+        let tasks  = this.c.get('tasks');
+        let dirs   = this.c.get('dirs');
+        let logger = this.c.get('logger');
+        
+        dirs.forEach('tasks', function(file) {
+            tasks.add(file);
+        });
+        
+        this.booted_tasks = true;
+        this.events.emit('booted.tasks', this);
+        logger.debug('Tasks booted.');
     }
 }
 
