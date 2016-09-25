@@ -84,7 +84,9 @@ class Roastr {
             express.use(middleware);
         });
         server.listen(config.express.port, function() {
-            socket.listen();
+            if (this.booted_socket) {
+                socket.listen();
+            }
             tasks.start();
             
             events.emit('listening', this);
@@ -94,7 +96,7 @@ class Roastr {
                 config.express.port,
                 process.pid
             );
-        });
+        }.bind(this));
     }
     
     /**
@@ -153,17 +155,22 @@ class Roastr {
         let models = container.get('models');
         let logger = container.get('logger');
         let dirs   = container.get('dirs');
+        let count  = 0;
         
         dirs.forEach('_models', function(file) {
             require(file)(models, container);
+            count++;
         }.bind(this));
         dirs.forEach('models', function(file) {
             require(file)(models, container);
+            count++;
         });
         
-        this.booted_models = true;
-        this.events.emit('booted.models', this);
-        logger.debug('Models booted.');
+        if (count !== 0) {
+            this.booted_models = true;
+            this.events.emit('booted.models', this);
+            logger.debug('Models booted.');
+        }
     }
     
     /**
@@ -174,6 +181,7 @@ class Roastr {
         let express   = container.get('express');
         let logger    = container.get('logger');
         let dirs      = container.get('dirs');
+        let count     = 0;
         let catchall  = null;
         
         dirs.forEach('routes', function(file) {
@@ -182,13 +190,17 @@ class Roastr {
                 return;
             }
             require(file)(express, container);
+            count++;
         });
         if (catchall) {
             require(catchall)(express, container);
+            count++;
         }
         
-        this.events.emit('booted.routes', this);
-        logger.debug('Routes booted.');
+        if (count !== 0) {
+            this.events.emit('booted.routes', this);
+            logger.debug('Routes booted.');
+        }
     }
     
     /**
@@ -199,16 +211,20 @@ class Roastr {
         let socket    = container.get('socket');
         let logger    = container.get('logger');
         let dirs      = container.get('dirs');
+        let count     = 0;
         
         socket.on('connection', function(socket) {
             dirs.forEach('socket', function(file) {
                 require(file)(socket, container);
+                count++;
             });
         });
         
-        this.booted_socket = true;
-        this.events.emit('booted.socket', this);
-        logger.debug('Socket handlers booted.');
+        if (count !== 0) {
+            this.booted_socket = true;
+            this.events.emit('booted.socket', this);
+            logger.debug('Socket handlers booted.');
+        }
     }
     
     /**
