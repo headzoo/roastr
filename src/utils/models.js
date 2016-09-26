@@ -26,8 +26,11 @@ class Models {
      * @returns {*}
      */
     add(opts) {
-        var model = this.bookshelf.Model.extend(opts);
+        if (!opts.tableName) {
+            throw new Error('Modal tableName not defined.');
+        }
         
+        var model = this.bookshelf.Model.extend(opts);
         this.bookshelf.model(opts.tableName, model);
         this.models[opts.tableName] = model;
         Object.defineProperty(this, opts.tableName, {
@@ -35,7 +38,7 @@ class Models {
                 return this.models[opts.tableName];
             }
         });
-        
+    
         return model;
     }
 }
