@@ -132,8 +132,9 @@ container.factory('knex', function() {
 
 container.factory('bookshelf', function() {
     var bookshelf = require('bookshelf')(container.get('knex'));
-    bookshelf.plugin('registry');
-    bookshelf.plugin('visibility');
+    container.tagged('bookshelf.plugin', function(plugin) {
+        bookshelf.plugin(plugin);
+    });
     
     return bookshelf;
 });
@@ -160,6 +161,12 @@ container.factory('passwords', function() {
     var Passwords = require('./crypt/passwords');
     return new Passwords(container.get('config'));
 });
+
+container.set('bookshelf.registry', ['bookshelf.plugin'], 'registry');
+
+container.set('bookshelf.pagination', ['bookshelf.plugin'], 'pagination');
+
+container.set('bookshelf.visibility', ['bookshelf.plugin'], 'visibility');
 
 container.factory('express.session', ['express.middleware'], function() {
     var session    = require('express-session');
