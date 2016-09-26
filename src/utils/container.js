@@ -9,10 +9,10 @@ class Container {
      * Constructor
      */
     constructor() {
-        this.events    = new EventEmitter();
-        this.services  = {};
+        this.events = new EventEmitter();
+        this.services     = {};
         this.instances = {};
-        this.tags      = {};
+        this.tags         = {};
     }
     
     /**
