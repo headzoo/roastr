@@ -1,9 +1,11 @@
 'use strict';
 
 const _         = require('lodash');
+const Container = require('roastr-container');
 const path      = require('path');
 const files     = require('./utils/files');
-const container = require('./utils/container');
+
+let container = new Container();
 
 container.set('env', ['template.global'], process.env.NODE_ENV || 'development');
 
