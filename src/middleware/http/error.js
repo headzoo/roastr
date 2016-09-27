@@ -20,7 +20,7 @@ module.exports = function(err, req, res, next) {
         stack = (new Error()).stack;
     }
     
-    let nunjucks = container.get('nunjucks');
+    let nunjucks = container.get('template');
     let template = '../../template/error.' + container.get('env') + '.html.tpl';
     fs.readFile(path.resolve(__dirname, template), function(e, data) {
         if (e) return next(e);
