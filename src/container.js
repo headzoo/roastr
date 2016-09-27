@@ -81,20 +81,20 @@ container.factory('models', function() {
     );
 });
 
-container.factory('nunjucks', function() {
+container.factory('template', function() {
     let nunjucks    = require('nunjucks');
     let Environment = require('./template/environment');
-    
     let env = new Environment(
         new nunjucks.FileSystemLoader(container.get('dirs').get('views')),
         container.get('config.template')
     );
+    
     env.express(container.get('express'));
     container.tagged('template.global', function(value, key) {
         env.addGlobal(key, value);
     });
     container.tagged('template.filter', function(value, key) {
-        env.addFilter(key.replace('template.', ''), value);
+        env.addFilter(key.replace(/^template\./, ''), value);
     });
     
     return env;

@@ -231,7 +231,7 @@ class Roastr {
      * @private
      */
     _setupTemplates() {
-        this.c.get('nunjucks');
+        this.c.get('template');
         this.events.emit('booted.templates', this);
         this.c.get('logger').debug('Templates booted.');
     }
