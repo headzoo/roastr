@@ -47,7 +47,6 @@ class Roastr {
             require(app_container_path);
         }
         
-        this._setupTemplates();
         this._setupModels();
         this._setupRoutes();
         this._setupSocket();
@@ -225,22 +224,6 @@ class Roastr {
             this.events.emit('booted.socket', this);
             logger.debug('Socket handlers booted.');
         }
-    }
-    
-    /**
-     * @private
-     */
-    _setupTemplates() {
-        let container = this.c;
-        let logger    = container.get('logger');
-        let nunjucks  = container.get('nunjucks');
-        nunjucks.express(container.get('express'));
-        container.tagged('template.global', function(value, key) {
-            nunjucks.addGlobal(key, value);
-        });
-        
-        this.events.emit('booted.templates', this);
-        logger.debug('Templates booted.');
     }
     
     /**

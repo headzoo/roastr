@@ -25,12 +25,12 @@ container.factory('config', ['template.global'], function() {
 });
 
 container.factory('express', function() {
-    var express = require('express')();
+    let express = require('express')();
     container.tagged('express.middleware', function(middleware) {
         express.use(middleware);
     });
     
-    var config = container.get('config');
+    let config = container.get('config');
     if (config.express.disablePoweredBy) {
         express.disable('x-powered-by');
     }
@@ -44,12 +44,12 @@ container.factory('express', function() {
 });
 
 container.factory('server', function() {
-    var express = container.get('express');
+    let express = container.get('express');
     return require('http').Server(express);
 });
 
 container.factory('socket', function() {
-    var Socket = require('./comm/socket');
+    let Socket = require('./comm/socket');
     
     return new Socket(
         container.get('server'),
@@ -60,10 +60,10 @@ container.factory('socket', function() {
 });
 
 container.factory('tasks', function() {
-    var Tasks  = require('./utils/tasks');
-    var tasks  = new Tasks(container.get('logger'));
-    var dirs   = container.get('dirs');
-    var files  = container.get('config').tasks || [];
+    let Tasks  = require('./utils/tasks');
+    let tasks  = new Tasks(container.get('logger'));
+    let dirs   = container.get('dirs');
+    let files  = container.get('config').tasks || [];
     
     files.forEach(function(file) {
         tasks.add(dirs.join('tasks', file));
@@ -73,7 +73,7 @@ container.factory('tasks', function() {
 });
 
 container.factory('models', function() {
-    var Models = require('./utils/models');
+    let Models = require('./utils/models');
     
     return new Models(
         container,
@@ -82,17 +82,23 @@ container.factory('models', function() {
 });
 
 container.factory('nunjucks', function() {
-    var nunjucks    = require('nunjucks');
-    var Environment = require('./template/environment');
+    let nunjucks    = require('nunjucks');
+    let Environment = require('./template/environment');
     
-    return new Environment(
+    let env = new Environment(
         new nunjucks.FileSystemLoader(container.get('dirs').get('views')),
-        container.get('config').template
+        container.get('config.template')
     );
+    env.express(container.get('express'));
+    container.tagged('template.global', function(value, key) {
+        env.addGlobal(key, value);
+    });
+    
+    return env;
 });
 
 container.factory('dirs', function() {
-    var Directories = require('./utils/dirs');
+    let Directories = require('./utils/dirs');
     
     return new Directories(
         container.get('root'),
@@ -101,8 +107,8 @@ container.factory('dirs', function() {
 });
 
 container.factory('logger', function() {
-    var config  = container.get('config');
-    var winston = require('winston');
+    let config  = container.get('config');
+    let winston = require('winston');
     
     winston.level = config.log.level;
     winston.remove(winston.transports.Console);
@@ -119,12 +125,12 @@ container.factory('logger', function() {
 });
 
 container.factory('jwt', function() {
-    var JWT = require('./security/jwt');
+    let JWT = require('./security/jwt');
     return new JWT(container.get('config'));
 });
 
 container.factory('knex', function() {
-    var config = container.get('config');
+    let config = container.get('config');
     
     return require('knex')({
         client     : config.orm.client,
@@ -133,7 +139,7 @@ container.factory('knex', function() {
 });
 
 container.factory('bookshelf', function() {
-    var bookshelf = require('bookshelf')(container.get('knex'));
+    let bookshelf = require('bookshelf')(container.get('knex'));
     container.tagged('bookshelf.plugin', function(plugin) {
         bookshelf.plugin(plugin);
     });
@@ -142,14 +148,14 @@ container.factory('bookshelf', function() {
 });
 
 container.factory('redis', function() {
-    var redis    = require("redis");
-    var config   = container.get('config');
-    var bluebird = require('bluebird');
+    let redis    = require("redis");
+    let config   = container.get('config');
+    let bluebird = require('bluebird');
     
     bluebird.promisifyAll(redis.RedisClient.prototype);
     bluebird.promisifyAll(redis.Multi.prototype);
     
-    var client = redis.createClient(config.redis.connection);
+    let client = redis.createClient(config.redis.connection);
     client.createClient = function() {
         return redis.createClient(config.redis.connection);
     };
@@ -160,7 +166,7 @@ container.factory('redis', function() {
 });
 
 container.factory('passwords', function() {
-    var Passwords = require('./crypt/passwords');
+    let Passwords = require('./crypt/passwords');
     return new Passwords(container.get('config'));
 });
 
@@ -171,14 +177,14 @@ container.set('bookshelf.pagination', ['bookshelf.plugin'], 'pagination');
 container.set('bookshelf.visibility', ['bookshelf.plugin'], 'visibility');
 
 container.factory('express.session', ['express.middleware'], function() {
-    var session    = require('express-session');
-    var RedisStore = require('connect-redis')(session);
-    var config     = container.get('config');
+    let session    = require('express-session');
+    let RedisStore = require('connect-redis')(session);
+    let config     = container.get('config');
     
-    var redis_config = _.merge(config.redis.connection, {
+    let redis_config = _.merge(config.redis.connection, {
         db: config.redis.databases.sessions
     });
-    var session_config = _.merge({}, config.session, {
+    let session_config = _.merge({}, config.session, {
         store: new RedisStore(redis_config),
         secret: config.security.secret
     });
@@ -193,7 +199,7 @@ container.factory('express.body_parser', ['express.middleware'], function() {
 container.set('express.body_parser_json', ['express.middleware'], require('body-parser').json());
 
 container.factory('express.cookie_parser', ['express.middleware'], function() {
-    var parser = require('cookie-parser');
+    let parser = require('cookie-parser');
     return parser(container.get('config').security.secret);
 });
 
