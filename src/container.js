@@ -93,6 +93,9 @@ container.factory('nunjucks', function() {
     container.tagged('template.global', function(value, key) {
         env.addGlobal(key, value);
     });
+    container.tagged('template.filter', function(value, key) {
+        env.addFilter(key.replace('template.', ''), value);
+    });
     
     return env;
 });
