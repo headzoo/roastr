@@ -1,7 +1,7 @@
 {
   "name": "roastr",
   "description": "An opinionated JavaScript MVC framework.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Sean Hickey",
   "bugs": "https://github.com/headzoo/roastr/issues",
   "dependencies": {
