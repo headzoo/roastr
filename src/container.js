@@ -133,12 +133,9 @@ container.factory('jwt', function() {
 });
 
 container.factory('knex', function() {
-    let config = container.get('config');
+    let config = container.get('config.orm');
     
-    return require('knex')({
-        client     : config.orm.client,
-        connection : config.orm.connection
-    });
+    return require('knex')(config);
 });
 
 container.factory('bookshelf', function() {
@@ -196,7 +193,7 @@ container.factory('express.session', ['express.middleware'], function() {
 });
 
 container.factory('express.body_parser', ['express.middleware'], function() {
-    return require('body-parser').urlencoded({ extended: true })
+    return require('body-parser').urlencoded({ extended: true });
 });
 
 container.set('express.body_parser_json', ['express.middleware'], require('body-parser').json());
